@@ -158,7 +158,7 @@ ab_dyn = imu.ab_dyn';
 
 % Prior estimates
 kf.xi = [ zeros(1,9), imu.gb_dyn, imu.ab_dyn ]';  % Error vector state
-kf.Pi = diag([imu.ini_align_err, gnss.stdv, gnss.std, imu.gb_dyn, imu.ab_dyn].^2);
+kf.Pi = diag([imu.ini_align_err, gnss.stdv(1,:), gnss.std, imu.gb_dyn, imu.ab_dyn].^2);
 
 kf.Q  = diag([imu.arw, imu.vrw, imu.gb_psd, imu.ab_psd].^2);
 
@@ -177,8 +177,8 @@ Tpr = diag([(RM + gnss.h(1)), (RN + gnss.h(1)) * cos(gnss.lat(1)), -1]);  % radi
 % Update matrix H
 kf.H = [ O I O O O ;
     O O Tpr O O ; ];
-kf.R = diag([gnss.stdv gnss.stdm]).^2;
-kf.z = [ gnss.stdv, gnss.stdm ]';
+kf.R = diag([gnss.stdv(1,:) gnss.stdm(1,:)]).^2;
+kf.z = [ gnss.stdv(1,:), gnss.stdm(1,:) ]';
         
 % Propagate prior estimates to get xp(1) and Pp(1)
 kf = kf_update( kf );
@@ -254,31 +254,31 @@ for i = 2:LI
     %         yawm_e(i) = hd_update (imu.mb(i,:), roll_e(i),  pitch_e(i), D);
     
     % ZUPT detection algorithm
-    idz = floor( gnss.zupt_win / dti ); % Index to set ZUPT window time
-    
-    if ( i > idz )
-        
-        vel_m = mean (vel_e(i-idz:i , :));
-        
-        if (abs(vel_m) <= gnss.zupt_th)
-            
-            % Alternative attitude ZUPT correction
-            % roll_e(i) = (roll_e(i-idz , :));
-            % pitch_e(i)= (pitch_e(i-idz , :));
-            % yaw_e(i)  = (yaw_e(i-idz, :));
-            
-            roll_e(i) = mean (roll_e(i-idz:i , :));
-            pitch_e(i)= mean (pitch_e(i-idz:i , :));
-            yaw_e(i)  = mean (yaw_e(i-idz:i , :));
-            
-            lat_e(i) = mean (lat_e(i-idz:i , :));
-            lon_e(i) = mean (lon_e(i-idz:i , :));
-            h_e(i)   = mean (h_e(i-idz:i , :));
-            
-            zupt = true;
-
-        end
-    end
+%     idz = floor( gnss.zupt_win / dti ); % Index to set ZUPT window time
+%     
+%     if ( i > idz )
+%         
+%         vel_m = mean (vel_e(i-idz:i , :));
+%         
+%         if (abs(vel_m) <= gnss.zupt_th)
+%             
+%             % Alternative attitude ZUPT correction
+%             % roll_e(i) = (roll_e(i-idz , :));
+%             % pitch_e(i)= (pitch_e(i-idz , :));
+%             % yaw_e(i)  = (yaw_e(i-idz, :));
+%             
+%             roll_e(i) = mean (roll_e(i-idz:i , :));
+%             pitch_e(i)= mean (pitch_e(i-idz:i , :));
+%             yaw_e(i)  = mean (yaw_e(i-idz:i , :));
+%             
+%             lat_e(i) = mean (lat_e(i-idz:i , :));
+%             lon_e(i) = mean (lon_e(i-idz:i , :));
+%             h_e(i)   = mean (h_e(i-idz:i , :));
+%             
+%             zupt = true;
+% 
+%         end
+%     end
     
     %% KALMAN FILTER UPDATE
     
@@ -317,11 +317,11 @@ for i = 2:LI
         if(zupt == false)
             kf.H = [ O I O O O ;
                 O O Tpr O O ; ];
-            kf.R = diag([gnss.stdv gnss.stdm]).^2;
+            kf.R = diag([gnss.stdv(gdx,:) gnss.stdm(gdx,:)]).^2;
             kf.z = [ zv' zp' ]';
         else
             kf.H = [ O I O O O ; ];
-            kf.R = diag([gnss.stdv]).^2;
+            kf.R = diag([gnss.stdv(gdx,:)]).^2;
             kf.z = zv;
         end
         
