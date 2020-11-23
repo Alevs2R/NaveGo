@@ -102,7 +102,7 @@ if strcmp(INS_GNSS, 'ON')
     
     % Execute INS/GPS integration
     % ---------------------------------------------------------------------
-    nav_orient = ins_gnss(orient_imu, orient_gnss, 'quaternion'); %
+    nav_orient = ins_gnss_stdm_vector(orient_imu, orient_gnss, 'quaternion'); %
     % ---------------------------------------------------------------------
     
     save nav_orient.mat nav_orient
