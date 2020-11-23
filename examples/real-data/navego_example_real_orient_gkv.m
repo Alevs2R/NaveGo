@@ -112,6 +112,14 @@ else
     load nav_orient
 end
 
+
+%% Printing traveled distance
+
+distance = gnss_distance (nav_orient.lat, nav_orient.lon);
+
+fprintf('NaveGo: distance traveled by the vehicle is %.2f meters or %.2f km. \n', distance, distance/1000)
+
+
 %% Print navigation time
 
 to = (nav_orient.t(end) - nav_orient.t(1));

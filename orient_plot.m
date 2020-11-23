@@ -136,19 +136,42 @@ subplot(311)
 plot(nav_e.tg, nav_e.b(:, 1).*R2D, '-.b');
 xlabel('Time [s]')
 ylabel('[deg]')
-title('KF BIAS ESTIMATION X');
+title('KF BIAS GYRO X ESTIMATION');
 grid
 
 subplot(312)
 plot(nav_e.tg, nav_e.b(:, 2).*R2D, '-.b');
 xlabel('Time [s]')
 ylabel('[deg]')
-title('KF BIAS ESTIMATION Y');
+title('KF BIAS GYRO Y ESTIMATION');
 grid
 
 subplot(313)
 plot(nav_e.tg, nav_e.b(:, 3).*R2D, '-.b');
 xlabel('Time [s]')
 ylabel('[deg]')
-title('KF BIAS ESTIMATION Z');
+title('KF BIAS GYRO Z ESTIMATION');
 grid
+
+figure;
+subplot(311)
+plot(nav_e.tg, nav_e.b(:, 4), '-.b');
+xlabel('Time [s]')
+ylabel('[m/s^2]')
+title('KF BIAS ACCR X ESTIMATION');
+grid
+
+subplot(312)
+plot(nav_e.tg, nav_e.b(:, 5), '-.b');
+xlabel('Time [s]')
+ylabel('[m/s^2]')
+title('KF BIAS ACCR Y ESTIMATION');
+grid
+
+subplot(313)
+plot(nav_e.tg, nav_e.b(:, 6), '-.b');
+xlabel('Time [s]')
+ylabel('[m/s^2]')
+title('KF BIAS ACCR Z ESTIMATION');
+grid
+
