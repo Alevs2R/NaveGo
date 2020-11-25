@@ -59,10 +59,14 @@ function  kf = kalman(kf, dt)
 
 % PREDICTION STEP
 
+global kalmanCount;
+
 kf = kf_prediction(kf, dt);
 
 % UPDATE STEP
-
-kf = kf_update(kf);
+% 
+% if kalmanCount < 1500
+kf = kf_update(kf);     
+% kalmanCount = kalmanCount + 1;
 
 end

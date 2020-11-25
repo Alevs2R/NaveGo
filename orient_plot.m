@@ -113,8 +113,6 @@ xlabel('Time [s]')
 ylabel('[m/s]')
 legend('GNSS', 'INS/GNSS');
 title('NORTH VELOCITY');
-ax = gca;
-ax.XRuler.Exponent = 0;
 grid
 
 subplot(312)
@@ -133,8 +131,6 @@ legend('GNSS', 'INS/GNSS');
 title('DOWN VELOCITY');
 grid
 
-ax = gca;
-ax.XRuler.Exponent = 0;
 
 % POSITION
 figure;

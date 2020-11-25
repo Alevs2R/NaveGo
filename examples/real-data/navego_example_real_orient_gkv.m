@@ -57,6 +57,9 @@ versionstr = 'NaveGo, release v1.2';
 fprintf('\n%s.\n', versionstr)
 fprintf('\nNaveGo: starting real INS/GNSS integration... \n')
 
+global kalmanCount;
+kalmanCount = 0;
+
 %% PARAMETERS
 
 % Comment any of the following parameters in order to NOT execute a 

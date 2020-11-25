@@ -103,6 +103,9 @@ function [nav_e] = ins_gnss(imu, gnss, att_mode)
 
 if nargin < 3, att_mode  = 'quaternion'; end
 
+global kalmanCount;
+kalmanCount = 0;
+
 %% ZUPT detection algorithm
 
 zupt = false;
