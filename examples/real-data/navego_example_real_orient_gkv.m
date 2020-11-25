@@ -94,6 +94,7 @@ load orient_imu
 fprintf('NaveGo: loading Orient GNSS data... \n')
 
 load orient_gnss
+load orient_gnss_heading
 
 % ekinox_gnss.eps = mean(diff(ekinox_imu.t)) / 2; %  A rule of thumb for choosing eps.
 
@@ -139,44 +140,27 @@ fprintf('NaveGo: navigation time under analysis is %.2f minutes or %.2f seconds.
 %% PLOT
 
 if (strcmp(PLOT,'ON'))
-   orient_plot (orient_gnss, nav_orient)
+   orient_plot (orient_gnss, orient_gnss_heading, nav_orient)
 end
 
-%% variance
-figure;
-
-sig3_v = abs(nav_orient.Pp(:, 1:16:end).^(0.5)) .* 3; % Only take diagonal elements from Pp
-
-R = 6.3781 * 10^6;              % Earth's radius in m
-delta_lat = [ 0; sig3_v(2:end,7) ];
-delta_lon = [ 0; sig3_v(2:end,8) ];
-a = sin( delta_lat ./ 2 ).^2 + cos( orient_gnss.lat).* cos( orient_gnss.lon) .* ...
-        sin( delta_lon ./ 2 ).^2;
-c = 2 .* atan2 ( sqrt(a), sqrt (1-a) );
-
-delta_pos = R .* c;
-title("standart deviation of position")
-ylabel("meters")
-plot (nav_orient.tg, delta_pos)
-
 %% innovations
-figure;
-% innovations for 
-subplot(311);
-plot (nav_orient.tg(1:1000), nav_orient.v(1:1000,4));
-title("innovations for latitude");
-xlabel('Time [s]');
-ylabel('degrees');
-subplot(312);
-plot (nav_orient.tg, nav_orient.v(:,5));
-title("innovations for longitude");
-xlabel('Time [s]');
-ylabel('degrees');
-subplot(313);
-plot (nav_orient.tg, nav_orient.v(:,6));
-title("innovations for height");
-xlabel('Time [s]');
-ylabel('meters');
+% figure;
+% % innovations for 
+% subplot(311);
+% plot (nav_orient.tg(1:1000), nav_orient.v(1:1000,4));
+% title("innovations for latitude");
+% xlabel('Time [s]');
+% ylabel('degrees');
+% subplot(312);
+% plot (nav_orient.tg, nav_orient.v(:,5));
+% title("innovations for longitude");
+% xlabel('Time [s]');
+% ylabel('degrees');
+% subplot(313);
+% plot (nav_orient.tg, nav_orient.v(:,6));
+% title("innovations for height");
+% xlabel('Time [s]');
+% ylabel('meters');
 
 % %% PLOT LATITUDE
 % 

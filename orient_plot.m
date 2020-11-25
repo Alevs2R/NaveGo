@@ -1,4 +1,4 @@
-function  orient_plot (gnss, nav_e)
+function  orient_plot (gnss, gnss_heading, nav_e)
 % navego_plot: plots results from INS/GNSS integration dataset.
 %
 % INPUT:
@@ -82,11 +82,12 @@ grid
 % ATTITUDE
 figure;
 subplot(311)
-plot(nav_e.t, R2D.*nav_e.roll,'-.b');
+plot(nav_e.t, R2D.*nav_e.roll,'-.b',gnss_heading.t, R2D.*gnss_heading.roll,'-c');
 ylabel('[deg]')
 xlabel('Time [s]')
-legend('INS/GNSS');
+legend('INS/GNSS', 'GNSS roll angle [2 antenna]');
 title('ROLL');
+ylim([-5,5]);
 grid
 
 subplot(312)
@@ -210,3 +211,18 @@ xlabel('Time [s]')
 ylabel('Gain')
 title('Kalman gain for pos_n');
 grid
+
+%% variance
+figure;
+
+R = 6.3781 * 10^6;              % Earth's radius in m
+delta_lat = [ 0; sig3_v(2:end,7) ];
+delta_lon = [ 0; sig3_v(2:end,8) ];
+a = sin( delta_lat ./ 2 ).^2 + cos( gnss.lat).* cos( gnss.lon) .* ...
+        sin( delta_lon ./ 2 ).^2;
+c = 2 .* atan2 ( sqrt(a), sqrt (1-a) );
+
+delta_pos = R .* c;
+plot (nav_e.tg, delta_pos)
+title("Standart deviation of horizontal position")
+ylabel("meters")
