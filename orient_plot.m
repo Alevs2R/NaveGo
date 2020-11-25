@@ -37,20 +37,47 @@ R2D = (180/pi);     % radians to degrees
 % Standard deviation * 3 vector from navigation estimates
 sig3_v = abs(nav_e.Pp(:, 1:16:end).^(0.5)) .* 3; % Only take diagonal elements from Pp
 
+[nav_e_x_utm,nav_e_y_utm,~] = deg2utm(nav_e.lat.*R2D,nav_e.lon.*R2D);
+[gnss_x_utm,gnss_y_utm,~] = deg2utm(gnss.lat.*R2D,gnss.lon.*R2D);
+
+offset_x = nav_e_x_utm(1);
+offset_y = nav_e_y_utm(1);
+nav_e_x_utm = nav_e_x_utm - offset_x;
+nav_e_y_utm = nav_e_y_utm - offset_y;
+gnss_x_utm = gnss_x_utm - offset_x;
+gnss_y_utm = gnss_y_utm - offset_y;
+
 % TRAJECTORY
+% figure;
+% plot3(nav_e.lon.*R2D, nav_e.lat.*R2D, nav_e.h, '-ob')
+% hold on
+% plot3(gnss.lon.*R2D, gnss.lat.*R2D, gnss.h)
+% plot3(nav_e.lon(1).*R2D, nav_e.lat(1).*R2D, nav_e.h(1), 'or', 'MarkerSize', 10, 'LineWidth', 2)
+% axis tight
+% title('TRAJECTORY')
+% xlabel('Longitude [deg]')
+% ylabel('Latitude [deg]')
+% zlabel('Altitude [m]')
+% view(0, 90)
+% legend('INS/GNSS', 'GNSS', 'Starting point', 'Location', 'best');
+% grid
+
 figure;
-plot3(nav_e.lon.*R2D, nav_e.lat.*R2D, nav_e.h, '-ob')
+plot3(nav_e_x_utm, nav_e_y_utm, nav_e.h, '-ob')
 hold on
-plot3(gnss.lon.*R2D, gnss.lat.*R2D, gnss.h)
-plot3(nav_e.lon(1).*R2D, nav_e.lat(1).*R2D, nav_e.h(1), 'or', 'MarkerSize', 10, 'LineWidth', 2)
+plot3(gnss_x_utm, gnss_y_utm, gnss.h)
+plot3(nav_e_x_utm(1), nav_e_y_utm(1), nav_e.h(1), 'or', 'MarkerSize', 10, 'LineWidth', 2)
 axis tight
 title('TRAJECTORY')
-xlabel('Longitude [deg]')
-ylabel('Latitude [deg]')
+xlabel('UTM X [m]')
+ylabel('UTM Y [m]')
 zlabel('Altitude [m]')
 view(0, 90)
 legend('INS/GNSS', 'GNSS', 'Starting point', 'Location', 'best');
 grid
+
+% ax = gca;
+% ax.XRuler.Exponent = 0;
 
 % ATTITUDE
 figure;
@@ -86,6 +113,8 @@ xlabel('Time [s]')
 ylabel('[m/s]')
 legend('GNSS', 'INS/GNSS');
 title('NORTH VELOCITY');
+ax = gca;
+ax.XRuler.Exponent = 0;
 grid
 
 subplot(312)
@@ -103,6 +132,9 @@ ylabel('[m/s]')
 legend('GNSS', 'INS/GNSS');
 title('DOWN VELOCITY');
 grid
+
+ax = gca;
+ax.XRuler.Exponent = 0;
 
 % POSITION
 figure;
@@ -175,3 +207,10 @@ ylabel('[m/s^2]')
 title('KF BIAS ACCR Z ESTIMATION');
 grid
 
+figure;
+% subplot(311)
+plot(nav_e.tg, nav_e.K(:, 49));
+xlabel('Time [s]')
+ylabel('Gain')
+title('Kalman gain for pos_n');
+grid

@@ -42,20 +42,45 @@ R2D = (180/pi);     % radians to degrees
 % Standard deviation * 3 vector from navigation estimates
 sig3_v = abs(nav_e.Pp(:, 1:16:end).^(0.5)) .* 3; % Only take diagonal elements from Pp
 
-% TRAJECTORY
+[nav_e_x_utm,nav_e_y_utm,~] = deg2utm(nav_e.lat.*R2D,nav_e.lon.*R2D);
+[gnss_x_utm,gnss_y_utm,~] = deg2utm(gnss.lat.*R2D,gnss.lon.*R2D);
+
+offset_x = nav_e_x_utm(1);
+offset_y = nav_e_y_utm(1);
+nav_e_x_utm = nav_e_x_utm - offset_x;
+nav_e_y_utm = nav_e_y_utm - offset_y;
+gnss_x_utm = gnss_x_utm - offset_x;
+gnss_y_utm = gnss_y_utm - offset_y;
+
+% % TRAJECTORY UTM
 figure;
-plot3(ref_n.lon.*R2D, ref_n.lat.*R2D, ref_n.h, '--k')
+plot3(nav_e_x_utm, nav_e_y_utm, nav_e.h, '-ob')
 hold on
-plot3(nav_i.lon.*R2D, nav_i.lat.*R2D, nav_i.h, '-ob')
-plot3(ref_n.lon(1).*R2D, ref_n.lat(1).*R2D, ref_n.h(1), 'or', 'MarkerSize', 10, 'LineWidth', 2)
+plot3(gnss_x_utm, gnss_y_utm, gnss.h)
+plot3(nav_e_x_utm(1), nav_e_y_utm(1), nav_e.h(1), 'or', 'MarkerSize', 10, 'LineWidth', 2)
 axis tight
-title('TRAJECTORY')
-xlabel('Longitude [deg]')
-ylabel('Latitude [deg]')
+title('TRAJECTORY UTM')
+xlabel('UTM X [m]')
+ylabel('UTM Y [m]')
 zlabel('Altitude [m]')
 view(0, 90)
-legend('REF', 'INS/GNSS', 'Starting point', 'Location', 'best');
+legend('INS/GNSS', 'GNSS', 'Starting point', 'Location', 'best');
 grid
+
+% TRAJECTORY
+% figure;
+% plot3(ref_n.lon.*R2D, ref_n.lat.*R2D, ref_n.h, '--k')
+% hold on
+% plot3(nav_i.lon.*R2D, nav_i.lat.*R2D, nav_i.h, '-ob')
+% plot3(ref_n.lon(1).*R2D, ref_n.lat(1).*R2D, ref_n.h(1), 'or', 'MarkerSize', 10, 'LineWidth', 2)
+% axis tight
+% title('TRAJECTORY')
+% xlabel('Longitude [deg]')
+% ylabel('Latitude [deg]')
+% zlabel('Altitude [m]')
+% view(0, 90)
+% legend('REF', 'INS/GNSS', 'Starting point', 'Location', 'best');
+% grid
 
 % ATTITUDE
 figure;

@@ -146,6 +146,11 @@ lon_e    = zeros (LI,1);
 h_e      = zeros (LI, 1);
 
 % Initial position at INS time = 1
+
+% TODO fix initial position
+% initial_position = [gnss.lat(1); gnss.lon(1); gnss.h(1);] ...
+%             + (DCMbn * gnss.larm);
+
 h_e(1)   = gnss.h(1);
 lat_e(1) = gnss.lat(1);
 lon_e(1) = gnss.lon(1);
@@ -158,7 +163,7 @@ ab_dyn = imu.ab_dyn';
 
 % Prior estimates
 kf.xi = [ zeros(1,9), imu.gb_dyn, imu.ab_dyn ]';  % Error vector state
-kf.Pi = diag([imu.ini_align_err, gnss.stdv(1,:), gnss.std, imu.gb_dyn, imu.ab_dyn].^2);
+kf.Pi = diag([imu.ini_align_err, gnss.stdv(1,:), gnss.std*3, imu.gb_dyn, imu.ab_dyn].^2);
 
 kf.Q  = diag([imu.arw, imu.vrw, imu.gb_psd, imu.ab_psd].^2);
 
@@ -255,7 +260,7 @@ for i = 2:LI
     
     % ZUPT detection algorithm
 %     idz = floor( gnss.zupt_win / dti ); % Index to set ZUPT window time
-%     
+%    
 %     if ( i > idz )
 %         
 %         vel_m = mean (vel_e(i-idz:i , :));

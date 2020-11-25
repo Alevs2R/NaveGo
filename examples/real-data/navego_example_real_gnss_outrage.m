@@ -227,3 +227,21 @@ if (strcmp(PLOT,'ON'))
     
     navego_plot (ref, gnss, nav_or, gnss_i, nav_i, ref_g, ref_n)
 end
+
+%% variance
+figure;
+
+sig3_v = abs(nav_or.Pp(:, 1:16:end).^(0.5)) .* 3; % Only take diagonal elements from Pp
+
+R = 6.3781 * 10^6;              % Earth's radius in m
+delta_lat = [ 0; sig3_v(2:end,7) ];
+delta_lon = [ 0; sig3_v(2:end,8) ];
+a = sin( delta_lat ./ 2 ).^2 + cos( gnss.lat).* cos( gnss.lon) .* ...
+        sin( delta_lon ./ 2 ).^2;
+c = 2 .* atan2 ( sqrt(a), sqrt (1-a) );
+
+delta_pos = R .* c;
+
+% subplot(211)
+plot (nav_or.tg, delta_pos)
+
