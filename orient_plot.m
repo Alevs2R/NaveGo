@@ -212,7 +212,7 @@ ylabel('Gain')
 title('Kalman gain for pos_n');
 grid
 
-%% variance
+% variance
 figure;
 
 R = 6.3781 * 10^6;              % Earth's radius in m
@@ -226,3 +226,32 @@ delta_pos = R .* c;
 plot (nav_e.tg, delta_pos)
 title("Standart deviation of horizontal position")
 ylabel("meters")
+
+% Free accelerations
+
+figure;
+title("ACCELERATIONS WITH BIASES, GRAVITY AND CORIOLIS FORCES SUBSTRACTED");
+subplot(311)
+plot(nav_e.t, nav_e.fb_free(:, 1), '-.b');
+xlabel('Time [s]')
+ylabel('[m/s^2]')
+title('FREE ACCELERATION X');
+ylim([-3,3]);
+grid
+
+subplot(312)
+plot(nav_e.t, nav_e.fb_free(:, 2), '-.b');
+xlabel('Time [s]')
+ylabel('[m/s^2]')
+title('FREE ACCELERATION Y');
+ylim([-3,3]);
+grid
+
+subplot(313)
+plot(nav_e.t, nav_e.fb_free(:, 3), '-.b');
+xlabel('Time [s]')
+ylabel('[m/s^2]')
+title('FREE ACCELERATION Z');
+ylim([-3,3]);
+grid
+

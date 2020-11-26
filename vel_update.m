@@ -1,4 +1,4 @@
-function vel_n = vel_update(fn, vel_n, omega_ie_n, omega_en_n, g, dt)
+function [vel_n, fn_c] = vel_update(fn, vel_n, omega_ie_n, omega_en_n, g, dt)
 % vel_update: updates velocity vector in the NED frame.
 %
 % INPUT

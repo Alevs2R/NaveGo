@@ -137,6 +137,8 @@ qua   = euler2qua([roll_e(1) pitch_e(1) yaw_e(1)]);
 % Preallocate velocity vector
 vel_e   = zeros (LI, 3);
 
+fb_free_e = zeros(LI, 3);
+
 % Initial velocity at INS time = 1
 vel_e(1,:) = gnss.vel(1,:);
 
@@ -246,8 +248,11 @@ for i = 2:LI
     
     % Velocity update
     f_n = (DCMbn * fb_corrected);
-    vel_n = vel_update(f_n, vel_e(i-1,:), omega_ie_n, omega_en_n, g_n', dti);
+    [vel_n, fn_c] = vel_update(f_n, vel_e(i-1,:), omega_ie_n, omega_en_n, g_n', dti);
     vel_e (i,:) = vel_n;
+    
+    fb_free = (DCMbn' * fn_c);
+    fb_free_e(i,:) = fb_free;
     
     % Position update
     pos_n = pos_update([lat_e(i-1) lon_e(i-1) h_e(i-1)], vel_e(i,:), dti);
@@ -418,6 +423,8 @@ nav_e.Pi    = Pi;       % A priori covariance matrices
 nav_e.Pp    = Pp;       % A posteriori covariance matrices
 nav_e.K     = K;        % Kalman gain matrices
 nav_e.S     = S;        % Innovation matrices
+
+nav_e.fb_free = fb_free_e; % Accelerations with biases and gravity corrections
 
 fprintf('\n');
 
