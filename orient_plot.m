@@ -1,9 +1,11 @@
-function  orient_plot (gnss, gnss_heading, nav_e)
+function  orient_plot (gnss, gnss_heading, nav_e, gkv_gnss)
 % navego_plot: plots results from INS/GNSS integration dataset.
 %
 % INPUT:
-%   gnss,   GNSS dataset.
-%   nav_e,  INS/GNSS integration dataset.
+%   gnss,         GNSS dataset.
+%   gnss_heading, heading and roll angle from 2 antennas (GNSS) 
+%   nav_e,        INS/GNSS integration dataset.
+%   gkv_gnss,     reference trajectory from gkv INS/GNSS solution
 %
 % OUTPUT
 %   several figures.
@@ -46,6 +48,8 @@ nav_e_x_utm = nav_e_x_utm - offset_x;
 nav_e_y_utm = nav_e_y_utm - offset_y;
 gnss_x_utm = gnss_x_utm - offset_x;
 gnss_y_utm = gnss_y_utm - offset_y;
+gkv_x_utm = gkv_gnss.utm_x - offset_x;
+gkv_y_utm = gkv_gnss.utm_y - offset_y;
 
 % TRAJECTORY
 % figure;
@@ -63,8 +67,9 @@ gnss_y_utm = gnss_y_utm - offset_y;
 % grid
 
 figure;
-plot3(nav_e_x_utm, nav_e_y_utm, nav_e.h, '-ob')
+plot3(nav_e_x_utm, nav_e_y_utm, nav_e.h)
 hold on
+plot3(gkv_x_utm, gkv_y_utm, gkv_gnss.h, '-.')
 plot3(gnss_x_utm, gnss_y_utm, gnss.h)
 plot3(nav_e_x_utm(1), nav_e_y_utm(1), nav_e.h(1), 'or', 'MarkerSize', 10, 'LineWidth', 2)
 axis tight
@@ -73,7 +78,7 @@ xlabel('UTM X [m]')
 ylabel('UTM Y [m]')
 zlabel('Altitude [m]')
 view(0, 90)
-legend('INS/GNSS', 'GNSS', 'Starting point', 'Location', 'best');
+legend('NaveGo INS/GNSS', 'GKV INS/GNSS', 'GNSS', 'Starting point', 'Location', 'best');
 grid
 
 % ax = gca;
@@ -91,7 +96,7 @@ ylim([-5,5]);
 grid
 
 subplot(312)
-plot(nav_e.t, R2D.*nav_e.pitch,'-.b');
+plot(nav_e.t, R2D.*nav_e.pitch,'-b');
 ylabel('[deg]')
 xlabel('Time [s]')
 legend('INS/GNSS')
@@ -99,7 +104,7 @@ title('PITCH');
 grid
 
 subplot(313)
-plot(nav_e.t, R2D.*nav_e.yaw,'-.b');
+plot(nav_e.t, R2D.*nav_e.yaw,'-b');
 ylabel('[deg]')
 xlabel('Time [s]')
 legend('INS/GNSS')
@@ -205,11 +210,21 @@ title('KF BIAS ACCR Z ESTIMATION');
 grid
 
 figure;
-% subplot(311)
+subplot(311)
 plot(nav_e.tg, nav_e.K(:, 49));
 xlabel('Time [s]')
 ylabel('Gain')
-title('Kalman gain for pos_n');
+title('Kalman gain for pos_north');
+subplot(312)
+plot(nav_e.tg, nav_e.K(:, 65));
+xlabel('Time [s]')
+ylabel('Gain')
+title('Kalman gain for pos_east');
+subplot(313)
+plot(nav_e.tg, nav_e.K(:, 81));
+xlabel('Time [s]')
+ylabel('Gain')
+title('Kalman gain for pos_down');
 grid
 
 % variance
@@ -232,7 +247,7 @@ ylabel("meters")
 figure;
 title("ACCELERATIONS WITH BIASES, GRAVITY AND CORIOLIS FORCES SUBSTRACTED");
 subplot(311)
-plot(nav_e.t, nav_e.fb_free(:, 1), '-.b');
+plot(nav_e.t, nav_e.fb_free(:, 1));
 xlabel('Time [s]')
 ylabel('[m/s^2]')
 title('FREE ACCELERATION X');
@@ -240,7 +255,7 @@ ylim([-3,3]);
 grid
 
 subplot(312)
-plot(nav_e.t, nav_e.fb_free(:, 2), '-.b');
+plot(nav_e.t, nav_e.fb_free(:, 2));
 xlabel('Time [s]')
 ylabel('[m/s^2]')
 title('FREE ACCELERATION Y');
@@ -248,7 +263,7 @@ ylim([-3,3]);
 grid
 
 subplot(313)
-plot(nav_e.t, nav_e.fb_free(:, 3), '-.b');
+plot(nav_e.t, nav_e.fb_free(:, 3));
 xlabel('Time [s]')
 ylabel('[m/s^2]')
 title('FREE ACCELERATION Z');

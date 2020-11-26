@@ -98,6 +98,11 @@ load orient_gnss_heading
 
 % ekinox_gnss.eps = mean(diff(ekinox_imu.t)) / 2; %  A rule of thumb for choosing eps.
 
+%% GKV INS/GNSS solution
+% we use it as a reference to compare
+
+load gkv_gnss
+
 %% INS/GNSS integration
 
 if strcmp(INS_GNSS, 'ON')
@@ -140,7 +145,7 @@ fprintf('NaveGo: navigation time under analysis is %.2f minutes or %.2f seconds.
 %% PLOT
 
 if (strcmp(PLOT,'ON'))
-   orient_plot (orient_gnss, orient_gnss_heading, nav_orient)
+   orient_plot (orient_gnss, orient_gnss_heading, nav_orient, gkv_gnss)
 end
 
 %% innovations
