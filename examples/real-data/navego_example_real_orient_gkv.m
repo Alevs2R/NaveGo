@@ -57,9 +57,6 @@ versionstr = 'NaveGo, release v1.2';
 fprintf('\n%s.\n', versionstr)
 fprintf('\nNaveGo: starting real INS/GNSS integration... \n')
 
-global kalmanCount;
-kalmanCount = 0;
-
 %% PARAMETERS
 
 % Comment any of the following parameters in order to NOT execute a 
@@ -67,6 +64,7 @@ kalmanCount = 0;
 
 INS_GNSS = 'ON';
 PLOT     = 'ON';
+GNSS_OUTRAGE = 'ON';
 
 if (~exist('INS_GNSS','var')), INS_GNSS = 'OFF'; end
 if (~exist('PLOT','var')),     PLOT     = 'OFF'; end
@@ -97,6 +95,27 @@ load orient_gnss
 load orient_gnss_heading
 
 % ekinox_gnss.eps = mean(diff(ekinox_imu.t)) / 2; %  A rule of thumb for choosing eps.
+
+% Force GNSS outage
+
+% GNSS OUTRAGE TIME INTERVAL 1
+tor1_start  = 1605010439.7 + 100;  % (seconds)
+tor1_finish = tor1_start + 20;     % (seconds)
+
+if (strcmp(GNSS_OUTRAGE, 'ON'))
+    
+    fprintf('NaveGo: GNSS outage is forced... \n')
+    
+    % GNSS OUTRAGE 1
+    idx  = find(orient_gnss.t > tor1_start, 1, 'first' );
+    fdx  = find(orient_gnss.t < tor1_finish, 1, 'last' );
+    
+    orient_gnss.t(idx:fdx) = [];
+    orient_gnss.lat(idx:fdx) = [];
+    orient_gnss.lon(idx:fdx) = [];
+    orient_gnss.h(idx:fdx)   = [];
+    orient_gnss.vel(idx:fdx, :) = [];
+end
 
 %% GKV INS/GNSS solution
 % we use it as a reference to compare
