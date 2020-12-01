@@ -1,4 +1,4 @@
-function  orient_plot (gnss, gnss_heading, nav_e, gkv_gnss)
+function  orient_plot (gnss, gnss_heading, nav_e, gkv_gnss, gnss_outrage, idx)
 % navego_plot: plots results from INS/GNSS integration dataset.
 %
 % INPUT:
@@ -38,6 +38,7 @@ R2D = (180/pi);     % radians to degrees
 
 % Standard deviation * 3 vector from navigation estimates
 sig3_v = abs(nav_e.Pp(:, 1:16:end).^(0.5)) .* 3; % Only take diagonal elements from Pp
+sig3_priori = abs(nav_e.Pi(:, 1:16:end).^(0.5)) .* 3; % Only take diagonal elements from Pi
 
 [nav_e_x_utm,nav_e_y_utm,~] = deg2utm(nav_e.lat.*R2D,nav_e.lon.*R2D);
 [gnss_x_utm,gnss_y_utm,~] = deg2utm(gnss.lat.*R2D,gnss.lon.*R2D);
@@ -70,15 +71,23 @@ figure;
 plot3(nav_e_x_utm, nav_e_y_utm, nav_e.h)
 hold on
 plot3(gkv_x_utm, gkv_y_utm, gkv_gnss.h, '-.')
-plot3(gnss_x_utm, gnss_y_utm, gnss.h)
-plot3(nav_e_x_utm(1), nav_e_y_utm(1), nav_e.h(1), 'or', 'MarkerSize', 10, 'LineWidth', 2)
+scatter3(gnss_x_utm, gnss_y_utm, gnss.h, 1, 'k')
+plot3(nav_e_x_utm(1), nav_e_y_utm(1), nav_e.h(1), 'ob', 'MarkerSize', 10, 'LineWidth', 2)
+if (strcmp(gnss_outrage, 'ON'))
+    plot3(gnss_x_utm(idx), gnss_y_utm(idx), gnss.h(idx), 'or', 'MarkerSize', 10, 'LineWidth', 2)
+end
 axis tight
 title('TRAJECTORY')
 xlabel('UTM X [m]')
 ylabel('UTM Y [m]')
 zlabel('Altitude [m]')
 view(0, 90)
-legend('NaveGo INS/GNSS', 'GKV INS/GNSS', 'GNSS', 'Starting point', 'Location', 'best');
+if (strcmp(gnss_outrage, 'ON'))
+    legend('NaveGo INS/GNSS', 'GKV INS/GNSS', 'GNSS', 'Starting point', 'Disable GNSS point', 'Location', 'best');
+else
+    legend('NaveGo INS/GNSS', 'GKV INS/GNSS', 'GNSS', 'Starting point', 'Location', 'best');
+end    
+axis equal;
 grid
 
 % ax = gca;
@@ -214,33 +223,44 @@ subplot(311)
 plot(nav_e.tg, nav_e.K(:, 49));
 xlabel('Time [s]')
 ylabel('Gain')
-title('Kalman gain for pos_north');
+title('Kalman gain for latitude');
 subplot(312)
 plot(nav_e.tg, nav_e.K(:, 65));
 xlabel('Time [s]')
 ylabel('Gain')
-title('Kalman gain for pos_east');
+title('Kalman gain for longitude');
 subplot(313)
 plot(nav_e.tg, nav_e.K(:, 81));
 xlabel('Time [s]')
 ylabel('Gain')
-title('Kalman gain for pos_down');
+title('Kalman gain for height');
 grid
 
 % variance
 figure;
 
 R = 6.3781 * 10^6;              % Earth's radius in m
-delta_lat = [ 0; sig3_v(2:end,7) ];
-delta_lon = [ 0; sig3_v(2:end,8) ];
-a = sin( delta_lat ./ 2 ).^2 + cos( gnss.lat).* cos( gnss.lon) .* ...
-        sin( delta_lon ./ 2 ).^2;
+std_lat = [ 0; sig3_v(2:end,7) ];
+std_lon = [ 0; sig3_v(2:end,8) ];
+a = sin( std_lat ./ 2 ).^2 + cos( gnss.lat).* cos( gnss.lon) .* ...
+        sin( std_lon ./ 2 ).^2;
 c = 2 .* atan2 ( sqrt(a), sqrt (1-a) );
+std_hor_posteriori = R .* c;
 
-delta_pos = R .* c;
-plot (nav_e.tg, delta_pos)
+std_lat = [ 0; sig3_priori(2:end,7) ];
+std_lon = [ 0; sig3_priori(2:end,8) ];
+a = sin( std_lat ./ 2 ).^2 + cos( gnss.lat).* cos( gnss.lon) .* ...
+        sin( std_lon ./ 2 ).^2;
+c = 2 .* atan2 ( sqrt(a), sqrt (1-a) );
+std_hor_priori = R .* c;
+
+plot (nav_e.tg, std_hor_priori);
+hold on;
+plot (nav_e.tg, std_hor_posteriori);
 title("Standart deviation of horizontal position")
+legend("from priopi covariance matrix", "from posteriori covariance matrix")
 ylabel("meters")
+xlabel("Time [s]")
 
 % Free accelerations
 

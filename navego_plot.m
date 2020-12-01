@@ -56,7 +56,7 @@ gnss_y_utm = gnss_y_utm - offset_y;
 figure;
 plot3(nav_e_x_utm, nav_e_y_utm, nav_e.h, '-ob')
 hold on
-plot3(gnss_x_utm, gnss_y_utm, gnss.h)
+plot3(gnss_x_utm, gnss_y_utm, gnss.h, '-m')
 plot3(nav_e_x_utm(1), nav_e_y_utm(1), nav_e.h(1), 'or', 'MarkerSize', 10, 'LineWidth', 2)
 axis tight
 title('TRAJECTORY UTM')

@@ -94,14 +94,20 @@ fprintf('NaveGo: loading Orient GNSS data... \n')
 load orient_gnss
 load orient_gnss_heading
 
+% offset_t = orient_gnss.t(1);
+% orient_gnss.t = orient_gnss.t - offset_t;
+% orient_imu.t = orient_imu.t - offset_t;
+% orient_gnss_heading.t = orient_gnss_heading.t - offset_t;
+
 % ekinox_gnss.eps = mean(diff(ekinox_imu.t)) / 2; %  A rule of thumb for choosing eps.
 
 % Force GNSS outage
 
 % GNSS OUTRAGE TIME INTERVAL 1
-tor1_start  = 1605010439.7 + 100;  % (seconds)
-tor1_finish = tor1_start + 20;     % (seconds)
+tor1_start  = 1605010439.7 + 50;  % (seconds)
+tor1_finish = tor1_start + 10;     % (seconds)
 
+idx = 0;
 if (strcmp(GNSS_OUTRAGE, 'ON'))
     
     fprintf('NaveGo: GNSS outage is forced... \n')
@@ -115,6 +121,11 @@ if (strcmp(GNSS_OUTRAGE, 'ON'))
     orient_gnss.lon(idx:fdx) = [];
     orient_gnss.h(idx:fdx)   = [];
     orient_gnss.vel(idx:fdx, :) = [];
+    orient_gnss.stdm(idx:fdx, :) = [];
+    orient_gnss.stdv(idx:fdx, :) = [];
+
+    % load the same solution but without gnss outrage
+    load nav_orient_ref
 end
 
 %% GKV INS/GNSS solution
@@ -164,7 +175,31 @@ fprintf('NaveGo: navigation time under analysis is %.2f minutes or %.2f seconds.
 %% PLOT
 
 if (strcmp(PLOT,'ON'))
-   orient_plot (orient_gnss, orient_gnss_heading, nav_orient, gkv_gnss)
+   orient_plot (orient_gnss, orient_gnss_heading, nav_orient, gkv_gnss, GNSS_OUTRAGE, idx-1)
+end
+
+if (strcmp(GNSS_OUTRAGE, 'ON'))
+    % POSITION ERRORS
+%     [RN,RE]  = radius(nav_orient.lat);
+%     LAT2M = RN + nav_orient.h;
+%     LON2M = (RE + nav_orient.h).*cos(nav_orient.lat);
+
+    [nav_x_utm,nav_y_utm,~] = deg2utm(nav_orient.lat.*R2D,nav_orient.lon.*R2D);
+    [nav_x_ref_utm,nav_y_ref_utm,~] = deg2utm(nav_orient_ref.lat.*R2D,nav_orient_ref.lon.*R2D);
+    
+    diff_hor = ((nav_x_utm - nav_x_ref_utm).^2 + (nav_y_utm - nav_y_ref_utm).^2).^0.5;
+    diff_h = abs(nav_orient.h - nav_orient_ref.h);   
+    
+    figure;
+    offset_t = nav_orient.t(1);
+    plot((nav_orient.t-offset_t), diff_hor, nav_orient.t-offset_t, diff_h);
+    disable_gnss_x = orient_gnss.t(idx-1) - offset_t;
+    line([disable_gnss_x disable_gnss_x], get(gca, 'ylim'), 'Color','red','LineWidth',1 );
+    title("POSITION ERROR");
+    legend("Horizontal position error", "Vertical error")
+    xlabel("Time [s]");
+    ylabel("Error [m]");
+    grid;
 end
 
 %% innovations
