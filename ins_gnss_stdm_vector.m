@@ -153,9 +153,16 @@ h_e      = zeros (LI, 1);
 % initial_position = [gnss.lat(1); gnss.lon(1); gnss.h(1);] ...
 %             + (DCMbn * gnss.larm);
 
-h_e(1)   = gnss.h(1);
-lat_e(1) = gnss.lat(1);
-lon_e(1) = gnss.lon(1);
+[RM,RN] = radius(gnss.lat(1));
+Tpr = diag([(RM + gnss.h(1)), (RN + gnss.h(1)) * cos(gnss.lat(1)), -1]);  % radians-to-meters
+
+initial_position = Tpr \ (Tpr * ([gnss.lat(1); gnss.lon(1); gnss.h(1);]) ...
+    - (DCMbn * gnss.larm));
+
+
+h_e(1)   = initial_position(3); 
+lat_e(1) = initial_position(1); 
+lon_e(1) = initial_position(2); 
 
 % Biases
 gb_dyn = imu.gb_dyn';
@@ -177,9 +184,6 @@ upd = [gnss.vel(1,:) gnss.lat(1) gnss.h(1) f_n'];
 
 % Update matrices F and G
 [kf.F, kf.G] = F_update(upd, DCMbn, imu);
-
-[RM,RN] = radius(gnss.lat(1));
-Tpr = diag([(RM + gnss.h(1)), (RN + gnss.h(1)) * cos(gnss.lat(1)), -1]);  % radians-to-meters
         
 % Update matrix H
 kf.H = [ O I O O O ;

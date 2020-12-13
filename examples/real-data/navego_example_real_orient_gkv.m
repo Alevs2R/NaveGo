@@ -179,11 +179,6 @@ if (strcmp(PLOT,'ON'))
 end
 
 if (strcmp(GNSS_OUTRAGE, 'ON'))
-    % POSITION ERRORS
-%     [RN,RE]  = radius(nav_orient.lat);
-%     LAT2M = RN + nav_orient.h;
-%     LON2M = (RE + nav_orient.h).*cos(nav_orient.lat);
-
     [nav_x_utm,nav_y_utm,~] = deg2utm(nav_orient.lat.*R2D,nav_orient.lon.*R2D);
     [nav_x_ref_utm,nav_y_ref_utm,~] = deg2utm(nav_orient_ref.lat.*R2D,nav_orient_ref.lon.*R2D);
     
@@ -202,57 +197,3 @@ if (strcmp(GNSS_OUTRAGE, 'ON'))
     grid;
 end
 
-%% innovations
-% figure;
-% % innovations for 
-% subplot(311);
-% plot (nav_orient.tg(1:1000), nav_orient.v(1:1000,4));
-% title("innovations for latitude");
-% xlabel('Time [s]');
-% ylabel('degrees');
-% subplot(312);
-% plot (nav_orient.tg, nav_orient.v(:,5));
-% title("innovations for longitude");
-% xlabel('Time [s]');
-% ylabel('degrees');
-% subplot(313);
-% plot (nav_orient.tg, nav_orient.v(:,6));
-% title("innovations for height");
-% xlabel('Time [s]');
-% ylabel('meters');
-
-% %% PLOT LATITUDE
-% 
-% figure;
-% plot(orient_gnss.t, orient_gnss.lat.*R2D);
-% xlabel('Time [s]')
-% ylabel('[deg]')
-% legend('GNSS');
-% title('LATITUDE');
-% grid
-% 
-% %% PLOT accelerations
-% figure;
-% subplot(311)
-% plot(orient_imu.t, orient_imu.fb(:,1));
-% xlabel('Time [s]')
-% ylabel('m/s^2')
-% legend('GKV');
-% title('acceleration x');
-% grid
-% 
-% subplot(312)
-% plot(orient_imu.t, orient_imu.fb(:,2));
-% xlabel('Time [s]')
-% ylabel('m/s^2')
-% legend('GKV');
-% title('acceleration y');
-% grid
-% 
-% subplot(313)
-% plot(orient_imu.t, orient_imu.fb(:,3));
-% xlabel('Time [s]')
-% ylabel('m/s^2')
-% legend('GKV');
-% title('acceleration z');
-% grid
